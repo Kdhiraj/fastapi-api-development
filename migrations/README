@@ -1,0 +1,51 @@
+Generic single-database configuration with an async dbapi.
+
+# Database Migrations
+
+This folder contains database schema migrations managed by **Alembic**.
+
+---
+
+## Create Migration (Revision)
+
+### Generate a new migration from model changes:
+
+```bash
+alembic revision --autogenerate -m "migration message"
+```
+
+## Apply Migrations (Upgrade)
+
+#### Apply all pending migrations:
+
+```bash
+alembic upgrade head
+```
+
+#### Upgrade to a specific revision:
+
+```bash
+alembic upgrade <revision_id>
+```
+
+## Rollback Migrations (Downgrade)
+
+#### Rollback last migration:
+
+```bash
+alembic downgrade -1
+```
+
+#### Rollback to a specific revision:
+
+```bash
+alembic downgrade <revision_id>
+```
+
+## Notes
+
+- Ensure all models are imported before autogenerating
+
+- Database URL must use a valid SQLAlchemy dialect/driver
+
+- Base.metadata must be available in env.py

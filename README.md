@@ -24,6 +24,7 @@ This project explores and practices:
 - Dependency Injection
 - Environment configuration
 - API security best practices
+- Database Migration
 
 ---
 
@@ -36,6 +37,7 @@ This project explores and practices:
 - **SQLAlchemy & SQLModel**
 - **Pydantic**
 - **JWT**
+- **Alembic**
 
 ---
 
@@ -108,7 +110,11 @@ pip install uv
 
 6. Edit .env with your database URL, secret keys, and configuration.
 
-7. Run database migrations (if using Alembic):
+7. Intialize database migrations
+   ```bash
+   alembic init -t async migrations
+   ```
+8. Run database migrations (if using Alembic):
    ```bash
    alembic upgrade head
    ```

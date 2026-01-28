@@ -1,3 +1,4 @@
+alembic==1.18.1
 annotated-doc==0.0.4
 annotated-types==0.7.0
 anyio==4.12.1
@@ -10,12 +11,14 @@ fastapi==0.128.0
 fastapi-cli==0.0.20
 fastapi-cloud-cli==0.11.0
 fastar==0.8.0
+greenlet==3.3.1
 h11==0.16.0
 httpcore==1.0.9
 httptools==0.7.1
 httpx==0.28.1
 idna==3.11
 jinja2==3.1.6
+mako==1.3.10
 markdown-it-py==4.0.0
 markupsafe==3.0.3
 mdurl==0.1.2
