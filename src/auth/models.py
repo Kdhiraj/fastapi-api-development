@@ -20,14 +20,13 @@ class User(SQLModel, table=True):
     first_name: str
     last_name: str
     email: str
-    password: str
+    password_hash: str
     is_verified: bool = Field(default=False)
-
     created_at: datetime = Field(
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
             nullable=False,
-            default=lambda: datetime.now(datetime.timezone.utc),
+            default=lambda: datetime.now(timezone.utc),
         )
     )
 
