@@ -1,8 +1,8 @@
 # 🚀 FastAPI API Development
 
 ![Stars](https://img.shields.io/github/stars/Kdhiraj/fastapi-api-development?style=for-the-badge)
-![FastAPI](https://img.shields.io/badge/FastAPI-109989?style=for-the-badge&logo=fastapi&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+[![FastAPI](https://img.shields.io/badge/FastAPI-109989?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 
 This repository contains my **personal learning journey with FastAPI**, where I go beyond basic CRUD and explore real-world backend development concepts.
 
