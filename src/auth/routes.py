@@ -1,16 +1,23 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
-from .dependencies import RefreshTokenBearer
+from .dependencies import (
+    RefreshTokenBearer,
+    AccessTokenBearer,
+    RoleChecker,
+    get_current_user,
+)
 from src.db.main import get_session
 from .schemas import UserCreateModel, UserLoginModel, UserModel
 from .service import UserService
 from .utils import verify_password, create_access_token
 from datetime import datetime, timedelta
+from src.db.redis import add_jti_to_blocklist
 
 auth_router = APIRouter()
 user_service = UserService()
 REFRESH_TOKEN_EXPIRY_IN_DAYS = 2
+role_checker = RoleChecker(allowed_roles=["admin", "user"])
 
 
 @auth_router.post(
@@ -44,15 +51,15 @@ async def login_users(
         password_valid = verify_password(password, user.password_hash)
 
         if password_valid:
-            access_token = create_access_token(
-                user_data={
-                    "email": user.email,
-                    "user_uid": str(user.uid),
-                }
-            )
+            user_data = {
+                "email": user.email,
+                "user_uid": str(user.uid),
+                "role": user.role,
+            }
+            access_token = create_access_token(user_data=user_data)
 
             refresh_token = create_access_token(
-                user_data={"email": user.email, "user_uid": str(user.uid)},
+                user_data=user_data,
                 refresh=True,
                 expiry=timedelta(days=REFRESH_TOKEN_EXPIRY_IN_DAYS),
             )
@@ -61,7 +68,7 @@ async def login_users(
                 content={
                     "success": True,
                     "message": "Login successful",
-                    "user": {"email": user.email, "uid": str(user.uid)},
+                    "user": user_data,
                     "access_token": access_token,
                     "refresh_token": refresh_token,
                 }
@@ -93,8 +100,22 @@ async def get_new_access_token(
 
 
 @auth_router.post("/logout")
-async def logout():
-    return {"message": "Logout endpoint"}
+async def logout(token_details: dict = Depends(AccessTokenBearer())):
+    jti = token_details.get("jti")
+    await add_jti_to_blocklist(jti)
+    return JSONResponse(
+        content={
+            "message": "Successfully logged out",
+        },
+        status_code=status.HTTP_200_OK,
+    )
+
+
+@auth_router.get("/me", response_model=UserModel)
+async def get_current_user(
+    current_user: dict = Depends(get_current_user), _: bool = Depends(role_checker)
+):
+    return current_user
 
 
 @auth_router.post("/reset-password")
