@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     PORT: int
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"
+    REDIS_HOST: str = "localhost"
+    REDIS_PORT: int = 6379
 
     model_config = SettingsConfigDict(
         env_file=".env",

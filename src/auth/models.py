@@ -1,7 +1,9 @@
+from typing import List
 import uuid
-from sqlmodel import Column, SQLModel, Field
+from sqlmodel import Column, Relationship, SQLModel, Field
 from datetime import datetime, timezone
 import sqlalchemy.dialects.postgresql as pg
+from src.books import model
 
 
 class User(SQLModel, table=True):
@@ -22,6 +24,10 @@ class User(SQLModel, table=True):
     email: str
     password_hash: str
     is_verified: bool = Field(default=False)
+    role: str = Field(
+        sa_column=Column(pg.VARCHAR(length=50), nullable=False, server_default="user")
+    )
+
     created_at: datetime = Field(
         sa_column=Column(
             pg.TIMESTAMP(timezone=True),
@@ -37,6 +43,9 @@ class User(SQLModel, table=True):
             default=lambda: datetime.now(timezone.utc),
             onupdate=lambda: datetime.now(timezone.utc),
         )
+    )
+    books: List["model.Book"] = Relationship(
+        back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
     def __repr__(self):
