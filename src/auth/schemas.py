@@ -4,6 +4,8 @@ import uuid
 from src.books.schema import Book
 from typing import List
 
+from src.reviews.schema import ReviewModel
+
 
 class UserModel(BaseModel):
     uid: uuid.UUID
@@ -14,9 +16,13 @@ class UserModel(BaseModel):
     role: str
     password_hash: str = Field(exclude=True)
     is_verified: bool
-    books: List[Book]
     created_at: datetime
     updated_at: datetime
+
+
+class UserBooksModel(UserModel):
+    books: List[Book]
+    reviews: List[ReviewModel]
 
 
 class UserCreateModel(BaseModel):
