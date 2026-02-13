@@ -8,7 +8,7 @@ from .dependencies import (
     get_current_user,
 )
 from src.db.main import get_session
-from .schemas import UserCreateModel, UserLoginModel, UserModel
+from .schemas import UserBooksModel, UserCreateModel, UserLoginModel, UserModel
 from .service import UserService
 from .utils import verify_password, create_access_token
 from datetime import datetime, timedelta
@@ -27,7 +27,9 @@ async def create_user_account(
     user_data: UserCreateModel, session: AsyncSession = Depends(get_session)
 ):
     email = user_data.email
+
     is_user_exist = await user_service.user_exist(email, session)
+
     if is_user_exist:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
@@ -111,7 +113,7 @@ async def logout(token_details: dict = Depends(AccessTokenBearer())):
     )
 
 
-@auth_router.get("/me", response_model=UserModel)
+@auth_router.get("/me", response_model=UserBooksModel)
 async def get_current_user(
     current_user: dict = Depends(get_current_user), _: bool = Depends(role_checker)
 ):
