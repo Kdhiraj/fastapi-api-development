@@ -1,10 +1,10 @@
 from pydantic import BaseModel, EmailStr, Field
 from datetime import datetime
 import uuid
-from src.books.schema import Book
+from src.books.schemas import Book
 from typing import List
 
-from src.reviews.schema import ReviewModel
+from src.reviews.schemas import ReviewModel
 
 
 class UserModel(BaseModel):
