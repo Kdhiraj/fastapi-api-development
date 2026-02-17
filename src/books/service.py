@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlmodel import desc, select
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.models import Book
-from .schema import BookCreateModel, BookUpdateModel
+from .schemas import BookCreateModel, BookUpdateModel
 
 
 class BookService:
@@ -20,7 +20,7 @@ class BookService:
         result = await db_session.execute(statement)
         return result.scalars().all()
 
-    async def get_a_book(self, book_id: str, db_session: AsyncSession):
+    async def get_book(self, book_id: str, db_session: AsyncSession):
         statement = select(Book).where(Book.uid == book_id)
         result = await db_session.execute(statement)
         result = result.scalars().first()

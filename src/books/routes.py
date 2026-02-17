@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, status
-from fastapi.exceptions import HTTPException
-from src.books.schema import Book, BookCreateModel, BookDetailModel, BookUpdateModel
+from src.books.schemas import Book, BookCreateModel, BookDetailModel, BookUpdateModel
 from src.books.service import BookService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from src.auth.dependencies import AccessTokenBearer, RoleChecker
+from src.errors import BookNotFound
 
 book_router = APIRouter()
 book_service = BookService()
@@ -42,13 +42,10 @@ async def view_book_detail(
     db_session: AsyncSession = Depends(get_session),
     _: dict = Depends(access_token_bearer),
 ) -> dict:
-    book = await book_service.get_a_book(book_id, db_session)
+    book = await book_service.get_book(book_id, db_session)
     if book is not None:
         return book
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Book not found",
-    )
+    raise BookNotFound()
 
 
 @book_router.post(
@@ -76,10 +73,7 @@ async def update_book(
     updated_book = await book_service.update_book(book_id, payload, db_session)
     if updated_book is not None:
         return updated_book
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Book not found",
-    )
+    raise BookNotFound()
 
 
 @book_router.delete(
@@ -96,7 +90,4 @@ async def delete_book(
     deleted_book = await book_service.delete_book(book_id, db_session)
     if deleted_book is not None:
         return {}
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail="Book not found",
-    )
+    raise BookNotFound()

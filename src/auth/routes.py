@@ -1,6 +1,8 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import JSONResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.errors import InvalidCredentials, InvalidToken, UserAlreadyExists
 from .dependencies import (
     RefreshTokenBearer,
     AccessTokenBearer,
@@ -31,10 +33,7 @@ async def create_user_account(
     is_user_exist = await user_service.user_exist(email, session)
 
     if is_user_exist:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User with email already exists",
-        )
+        raise UserAlreadyExists()
 
     new_user = await user_service.create_user(user_data, session)
     return new_user
@@ -76,10 +75,7 @@ async def login_users(
                 }
             )
 
-    raise HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Invalid email or password",
-    )
+    raise InvalidCredentials()
 
 
 @auth_router.get("/refresh_token", status_code=status.HTTP_200_OK)
@@ -88,12 +84,11 @@ async def get_new_access_token(
 ):
     expiry_date = token_data.get("exp")
     if datetime.fromtimestamp(expiry_date) < datetime.now():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Token has expired, please login again",
-        )
+        raise InvalidToken()
+
     user_data = token_data.get("user")
     new_access_token = create_access_token(user_data=user_data)
+
     return JSONResponse(
         content={
             "access_token": new_access_token,

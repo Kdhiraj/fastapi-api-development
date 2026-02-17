@@ -1,7 +1,8 @@
 from sqlmodel import desc, select
 from fastapi.exceptions import HTTPException
 from fastapi import status
-from src.reviews.schema import ReviewCreateModel
+from src.errors import BookNotFound, InsufficientPermission, UserNotFound
+from src.reviews.schemas import ReviewCreateModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.models import Review
 from typing import List
@@ -23,15 +24,11 @@ class ReviewService:
         try:
             user = await user_service.get_user_by_email(user_email, session)
             if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="User not found"
-                )
+                raise UserNotFound()
 
             book = await book_service.get_a_book(book_uid, session)
             if not book:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="Book not found"
-                )
+                raise BookNotFound()
 
             review_data_dict = review_data.model_dump()
             new_review = Review(
@@ -58,3 +55,31 @@ class ReviewService:
         )
         result = await session.execute(statement)
         return result.scalars().all()
+
+    async def get_review(self, review_uid: str, session: AsyncSession):
+        statement = select(Review).where(Review.uid == review_uid)
+
+        result = await session.execute(statement)
+
+        return result.first()
+
+    async def get_all_reviews(self, session: AsyncSession):
+        statement = select(Review).order_by(desc(Review.created_at))
+
+        result = await session.execute(statement)
+
+        return result.all()
+
+    async def delete_review_to_from_book(
+        self, review_uid: str, user_email: str, session: AsyncSession
+    ):
+        user = await user_service.get_user_by_email(user_email, session)
+
+        review = await self.get_review(review_uid, session)
+
+        if not review or (review.user is not user):
+            raise InsufficientPermission()
+
+        session.add(review)
+
+        await session.commit()
